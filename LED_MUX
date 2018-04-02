@@ -1,0 +1,20 @@
+module led_mux(leds_ctrl, score, leds_out);
+
+input [1:0] leds_ctrl;		
+input [6:0] score;	//  MSB 5 [WL L2 L1 0 R1 R2 WR] LSB 0
+output [6:0]leds_out;	// the output lights on the FPGA board
+
+reg [6:0] leds_out;
+
+always @(leds_ctrl or score)
+	begin
+		case(leds_ctrl)
+			2'b00: leds_out = 7'b0000000; //dark
+			2'b01: leds_out = 7'b1111111;	//wait
+			2'b10: leds_out = score;		//show score
+			2'b11: leds_out = 7'b0100111;		//reset
+			default: leds_out = 7'b1010101;	
+		endcase
+	end
+
+endmodule
