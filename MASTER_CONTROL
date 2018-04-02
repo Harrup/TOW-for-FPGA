@@ -1,0 +1,66 @@
+//This is the Master Control Module 
+// It times the action of the game 
+
+module master_controller ( slowen , winrnd, rand , clear , leds_on , leds_control, rst, clk ) ;
+	
+	input clk, rst , rand, winrnd , slowen ; 
+	output	reg	leds_on;
+	output	reg	clear;
+	output	reg [ 1:0] leds_control ; 
+	
+	reg [ 2:0] state , nextstate  ; 
+	
+	`define RESET	      0
+	`define Wait_a	      1
+	`define Wait_b        2       
+	`define Dark 	      3
+	`define Play	      4
+	`define Gloat_a	      5
+	`define Gloat_b       6
+	
+	always @(posedge clk or posedge rst)
+		begin
+   		if (rst) state <= `RESET;
+   		else state <= nextstate;
+		end
+	
+	always @( state or winrnd or slowen or rand or rst)  
+	begin
+		case (state) 
+		
+		 `RESET:		begin if ( ~rst ) nextstate = `Wait_a ; else nextstate = `RESET ;   $display("reset"); end    
+		 `Wait_a :		begin if ( slowen ) nextstate = `Wait_b ; else nextstate = `Wait_a ;   $display("Wait_a");  end	   
+		 `Wait_b : 		begin if ( slowen ) nextstate = `Dark ; else nextstate = `Wait_b ;   $display("Wait_b");  end	      
+		 `Dark : 		begin 
+								if ( (slowen) && (rand) ) nextstate = `Play ; 
+								else    
+									begin
+										if ( winrnd ) nextstate = `Gloat_a ; else nextstate = `Dark ;
+										$display("%t - Dark. slowen=%b; rand=%b;", $time, slowen, rand); 
+									end
+							end
+		 `Play:			begin if ( winrnd ) nextstate = `Gloat_a ; else nextstate = `Play ;   $display("Play.");  end	
+		 `Gloat_a :		begin if ( slowen ) nextstate = `Gloat_b ; else nextstate = `Gloat_a ;   $display("Gloat_a"); 	end
+		 `Gloat_b :		begin if ( slowen ) nextstate = `Dark ; else nextstate = `Gloat_b ;   $display("Gloat_b");  end
+	
+		default: begin nextstate = `RESET;    $display("default");  end
+		endcase
+		
+		//$display("%t - state=%b, nextstate=%b, leds_control=%b", $time, state, nextstate, leds_control);
+		end
+	
+	always @ (state)
+	begin
+		case (state) 
+		
+		 `RESET:			begin leds_on = 1;   clear = 1;  leds_control = 2'b11; end      
+		 `Wait_a :		begin leds_on = 1;   clear = 1;  leds_control = 2'b01; end    
+		 `Wait_b : 		begin leds_on = 1;   clear = 1;  leds_control = 2'b01; end   
+		 `Dark : 		begin leds_on = 0;   clear = 0;  leds_control = 2'b00; end   			
+		 `Play:			begin leds_on = 1;   clear = 0;  leds_control = 2'b10; end   
+		 `Gloat_a :		begin leds_on = 1;   clear = 1;  leds_control = 2'b10; end   	
+		 `Gloat_b :		begin leds_on = 1;   clear = 1;  leds_control = 2'b10; end
+		 
+		endcase 
+	end
+endmodule 
