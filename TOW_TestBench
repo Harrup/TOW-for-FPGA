@@ -1,0 +1,353 @@
+`timescale 1ns / 1ps
+
+module tow_tb;
+
+	// Inputs
+	reg pbl,pbr,rst,clk;
+
+	// Outputs
+	wire [6:0] leds_out;
+
+	// Instantiate the Unit Under Test (UUT)
+	tow uut (.pbl(pbl), .pbr(pbr), .rst(rst), .clk(clk), .leds_out(leds_out));
+
+	// set up clock 
+	always #976562.5 clk <= ~clk;
+		
+	// Initialize Inputs
+    initial begin              
+		pbl = 0;
+		pbr = 0;
+		rst = 0;
+		clk = 0;
+
+		// Wait 100 ns for global reset to finish
+		#100;
+	
+		// put the system in reset
+		@(posedge clk); #1;		// waits for a clock edge, then moves just past it
+		rst = 1;				
+	
+		// remove the system from reset
+		@(posedge clk); #1;		
+		rst = 0;		
+		
+		//left jumps light continuously till Score = 000-0-010
+		#5e9; //wait time
+		@(posedge clk); #1;		
+		pbl = 1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		//Right wins round. Score = 000-0-001
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 000-0-100
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 000-1-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 001-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 010-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 100-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left skips light. Score = 010-0-000
+		#2e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 100-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 111-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		
+		// Left has won round. Try switching. Inputs should be blocked.
+		#5e9;
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		
+		// Reset system
+		#5e9;
+		@(posedge clk); #1;
+		rst=1; pbl=0; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		rst=0;
+		
+		//Check for a tie
+		#5e9;
+		@(posedge clk); #1;
+		rst=0; pbl=1; pbr=1;
+		#1000;
+		@(posedge clk); #1;
+		rst=0; pbl=0; pbr=0;
+	
+		// Reset system
+		#5e9;
+		@(posedge clk); #1;
+		rst=1; pbl=0; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		rst=0;
+		$display("Im here 1");
+		
+		//Right wins round. Score = 000-0-100
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		$display("Im here 2");
+		
+		//Right wins round. Score = 000-0-010
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		$display("Im here 3");
+		
+        //Right wins round. Score = 000-0-001
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		
+		//Right wins round. Score = 000-0-111
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		// Reset system
+		#5e9;
+		@(posedge clk); #1;
+		rst=1; pbl=0; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		rst=0;
+		
+		
+		//Right wins round. Score = 000-0-100
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		//Right wins round. Score = 000-0-010
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		
+		//Right wins round. Score = 000-0-001
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		// Left wins round. Score = 000-0-100  //favour the loser
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+
+        // Reset system
+		#5e9;
+		@(posedge clk); #1;
+		rst=1; pbl=0; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		rst=0;
+		
+	
+        // Left wins round. Score = 001-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 010-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 100-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+	   //Right wins round. Score = 001-0-000
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+	
+        // Reset system
+		#5e9;
+		@(posedge clk); #1;
+		rst=1; pbl=0; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		rst=0;
+		
+				//Right wins round. Score = 000-0-100
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		//Right wins round. Score = 000-0-010
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		
+		//Right press with lights off 000-0-100 //left wins round
+		#5e9; 
+		@(posedge clk); #1;
+		pbl=0; pbr=1;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=1;
+		wait(leds_out==7'b0000000);
+		
+		wait(leds_out!=7'b0000000);
+		pbl=0; pbr=0;
+
+        // Reset system
+		#5e9;
+		@(posedge clk); #1;
+		rst=1; pbl=0; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		rst=0;
+		
+		
+		
+		// Left wins round. Score = 001-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 010-0-000
+		#5e9;
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=0; pbr=0;
+		
+		// Left wins round. Score = 100-0-000
+			#5e9; 
+		@(posedge clk); #1;
+		pbl=1; pbr=0;
+		#1000;
+		@(posedge clk); #1;		
+		pbl=1; pbr=0;
+		wait(leds_out==7'b0000000);
+		
+		wait(leds_out!=7'b0000000);
+		pbl=0; pbr=0;
+
+		
+		
+		
+		//Check if system has gone back to 000-1-000 play state
+		#5e9;
+		
+		$finish;
+	end
+      
+endmodule
+
