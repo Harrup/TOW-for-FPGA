@@ -1,0 +1,29 @@
+//Linear feedback shift register : Psuedo-random number generator
+
+
+module lfsr ( rand , clk , rst ) ; 
+
+	input clk , rst ;
+	output wire  rand ; 
+	
+	reg [9:0] lfsr ;
+	
+	
+	always @(posedge clk or posedge rst)
+		
+		if (rst) lfsr[9:0] <=1;
+			
+			else begin
+				
+				lfsr[8:0]<=lfsr[9:1];
+			
+				lfsr[9]<=lfsr[3]^lfsr[0];
+		end
+		
+	assign rand  = lfsr[9]; 
+	
+//	always @(rand)
+//		$display("%t - rand=%d", $time, rand);
+
+
+endmodule 
