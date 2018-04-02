@@ -1,0 +1,228 @@
+`timescale 1ns/1ns
+
+module scorer_tb;
+	
+	reg  leds_on, winrnd, rst, right, clk;		// all inputs to the device are regs
+	wire [6:0] score;							// output from the device is a wire
+	
+	
+	// Instantiate the scorer
+	scorer scorerinst (.clk(clk), .rst(rst), .leds_on(leds_on), .right(right), .winrnd(winrnd), .score(score));
+	
+	reg [6:0] score_reg;	// a SAMPLED version of the device output
+	
+	always @(posedge clk or posedge rst)
+		if(rst) score_reg <= 0;
+		else 	score_reg <= score;
+
+	// clock that toggles every 10 ns
+	always #10 clk <= ~clk;
+	
+	// the main sequence of the test
+	
+	
+	
+    // initialize all inputs
+		clk = 0;		rst = 0;
+		right = 0;	leds_on = 0;	winrnd = 0;
+		
+    //========================Resetting to NEUTRAL===============================================	
+		
+		@(posedge clk); #1;		// waits for a clock edge, then moves just past it
+		rst = 1;				// put the system in reset
+				
+		@(posedge clk); #1;		
+		rst = 0;									// remove the system from reset
+		right = 0;	leds_on = 0;	winrnd = 0;		// FIRST test setup
+		$display("%t - Setting up for first test. @ next clock edge Score should be 7'b0001000", $time);
+    //=================================================================================================
+		
+		@(posedge clk); #1;
+		if(score_reg == 7'b0001000) $display("%t - SUCCESS. Score was %b", $time, score_reg);
+		
+		
+	
+		//left pushing first from N
+		
+		repeat (5) @(posedge clk); #1;
+		if(score_reg == 7'b0001000) $display("%t - Setting up for left pushing first from N.", $time);
+		right = 0;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+		wait(score_reg == 7'b0010000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+		//----------------------------------------------------------------------------------------------
+
+      //left pushing first from L1
+	   @(posedge clk); #1;
+	   if(score_reg == 7'b0010000) $display("%t - Setting up for left pushing first from L1.", $time);
+	   right = 0;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	   wait(score_reg == 7'b0100000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+      //----------------------------------------------------------------------------------------------
+
+      //left pushing first from L2
+	   @(posedge clk); #1;
+	   if(score_reg == 7'b0100000) $display("%t - Setting up for left pushing first from L2.", $time);
+	   right = 0;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	   wait(score_reg == 7'b1000000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+      //---------------------------------------------------------------------------------------
+
+      //right pushing first from L3
+	   @(posedge clk); #1;
+	   if(score_reg == 7'b1000000) $display("%t - Setting up for right pushing first from L3.", $time);
+	   right = 1;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	   wait(score_reg == 7'b0010000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+      //----------------------------------------------------------------------------------------------
+
+
+     //right pushing first from L1
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0010000) $display("%t - Setting up for right pushing first from L1.", $time);
+	  right = 1;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0001000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+
+
+
+     //right pushing first from N
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0001000) $display("%t - Setting up for right pushing first from N.", $time);
+	  right = 1;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000100); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+	
+
+     //right pushing first from R1
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0000100) $display("%t - Setting up for right pushing first from R1.", $time);
+	  right = 1;	leds_on = 1;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000010); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+
+
+     //right pushing the light from R2
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0000010) $display("%t - Setting up for right pushing first from R2.", $time);
+	  right = 1;	leds_on = 1;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000001); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+  
+
+     //left pushing first from R3
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0000001) $display("%t - Setting up for left pushing first from R3.", $time);
+	  right = 0;	leds_on = 1;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000100); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+
+
+     //left jumping first from R1 (left push first when lights off)
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0000100) $display("%t - Setting up for left jumping first from R1.", $time);
+	  right = 0;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000010); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+	 
+
+     //left jumping first from R2 (left push first when lights off)
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0000010) $display("%t - Setting up for left jumping first from R2.", $time);
+	  right = 0;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000001); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+	
+
+     //left jumping first from R3 (left push first when lights off)
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0000001) $display("%t - Setting up for left jumping first from R3.", $time);
+	  right = 0;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0000111); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+  
+
+     //RESET
+     @(posedge clk); #1;		// waits for a clock edge, then moves just past it
+			rst = 1;				// put the system in reset
+		
+	  // =======================
+	  @(posedge clk); #1;		
+	  rst = 0;									// remove the system from reset
+	  right = 0;	leds_on = 0;	winrnd = 0;		// FIRST test setup
+	  $display("%t - Setting up for another test. @ next clock edge Score should be 7'b0001000", $time);
+		
+     //---------------------------------------------------
+	  
+
+     //right jumping first from N (right push first when lights off)
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0001000) $display("%t - Setting up for right jumping first from N.", $time);
+	  right = 1;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0010000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+
+	
+	  //right jumping first from L1 (right push first when lights off)
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0010000) $display("%t - Setting up for right jumping from L1.", $time);
+	  right = 1;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b0100000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+     //----------------------------------------------------------------------------------------------
+     
+     //right jumping first from L2	(right push first when lights off)  
+	  @(posedge clk); #1;
+	  if(score_reg == 7'b0100000) $display("%t - Setting up for right jumping first from L2.", $time);
+	  right = 1;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b1000000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+	  //----------------------------------------------------------------------------------------------
+	  
+     
+	  //right jumping first from L3 (right push first when lights off)
+     @(posedge clk); #1;
+	  if(score_reg == 7'b1000000) $display("%t - Setting up for right jumping first from L3.", $time);
+	  right = 1;	leds_on = 0;	winrnd = 1;		@(posedge clk); #1; winrnd = 0;
+	  wait(score_reg == 7'b1110000); $display("%t - SUCCESS. Score was %b", $time, score_reg);
+	  
+	  //RESET
+     @(posedge clk); #1;		// waits for a clock edge, then moves just past it
+			rst = 1;				// put the system in reset
+		
+	  // =======================
+	  @(posedge clk); #1;		
+	  rst = 0;									// remove the system from reset
+	  right = 0;	leds_on = 0;	winrnd = 0;		// FIRST test setup
+	  $display("%t - Setting up for third test. @ next clock edge Score should be 7'b0001000", $time);
+		
+     //---------------------------------------------------
+	  
+	  //left pushing first from N
+		
+		repeat (5) @(posedge clk); #1;
+		if(score_reg == 7'b0001000) $display("%t - Setting up for left pushing first from N.", $time);
+		right = 0;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+		wait(score_reg == 7'b0010000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+		//----------------------------------------------------------------------------------------------
+
+      //left pushing first from L1
+	   @(posedge clk); #1;
+	   if(score_reg == 7'b0010000) $display("%t - Setting up for left pushing first from L1.", $time);
+	   right = 0;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	   wait(score_reg == 7'b0100000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+      //----------------------------------------------------------------------------------------------
+
+      //left pushing first from L2
+	   @(posedge clk); #1;
+	   if(score_reg == 7'b0100000) $display("%t - Setting up for left pushing first from L2.", $time);
+	   right = 0;	leds_on = 1;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	   wait(score_reg == 7'b1000000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+      //---------------------------------------------------------------------------------------
+		
+		//left jumping first from L3
+	   @(posedge clk); #1;
+	   if(score_reg == 7'b1000000) $display("%t - Setting up for left jumping first from L3.", $time);
+	   right = 0;	leds_on = 0;	winrnd = 1;	@(posedge clk); #1; winrnd = 0;
+	   wait(score_reg == 7'b0100000); $display("%t - SUCCESS. Score was %b", $time, score_reg);	
+      //---------------------------------------------------------------------------------------
+	   
+
+
+		$finish;
+	end
+
+endmodule
