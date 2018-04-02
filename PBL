@@ -1,0 +1,19 @@
+module PBL(push, tie, right, pbl, pbr, clear, rst);
+  input pbl, pbr, rst, clear;
+  output push, tie, right;
+  
+  wire G, H, l_trig, r_trig, lx, rx;
+  
+  assign l_trig = (pbl&~H);
+  assign lx = (l_trig|G);
+  assign G = (lx&~(rst|clear));
+  
+  assign r_trig = (pbr&~G);
+  assign rx = (r_trig|H);
+  assign H = (rx&~(rst|clear));  
+  
+  assign push = (G|H);
+  assign right = (H&~G);
+  assign tie = (G&H);  
+  
+endmodule
